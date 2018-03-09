@@ -11,11 +11,11 @@
 
 #define MINIMUM_HIT_DISTANCE 0.001f
 #define TOLERANCE 0.0001f
-#define IMAGE_WIDTH 3840
-#define IMAGE_HEIGHT 2160
+#define IMAGE_WIDTH 1280
+#define IMAGE_HEIGHT 720
 #define CORE_COUNT 8
-#define MAX_BOUNCE_COUNT 16
-#define RAYS_PER_PIXEL 1024
+#define MAX_BOUNCE_COUNT 8
+#define RAYS_PER_PIXEL 512
 #define CONTRIBUTION (1.0f / (float)RAYS_PER_PIXEL)
 
 enum class MaterialName

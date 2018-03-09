@@ -4,47 +4,6 @@
 #include "../include/RayTracer.h"
 
 #include "gtest/gtest.h"
-// PCG random number generator (permuted congruential generator)
-// uses xorshift algorithm
-// linear congruential generator (multiplying, adding, and modding)
-
-//stats before rand() improvement
-// time=46521ms
-// total bounces = 1849847016
-// performance = 0.000025ms/bounce
-
-// stats after rand() improvement
-// time=17347ms
-// total bounces = 1849736461
-// performance = 0.000009ms/bounce
-
-// at least 4 calls deep with no actual randomness, no inlining whatsoever
-//// rand() used thread local storage, hence all the calls
-// rand.cpp
-// sub     rsp, 38h
-// call    __acrt_getptd()
-//   --> call  internal_getptd_noexit()
-//        --> call _crt_scoped_get_last_error_reset::
-//        --> call internal_get_ptd_head()
-//        --> call _crt_hmodule_traits::get_invalid_value()
-//            --> call qword ptr [__imp_GetLastError()]
-//            --> call qword ptr [__imp_SetLastError()]
-// mov     qword ptr [ptd], rax
-// mov     rax,qword ptr [ptd]
-// imul    eax,dword ptr [rax+28h], 343FDh
-// add     eax,269Ech3
-// mov     rcx,qword ptr [ptd]
-// mov     dword ptr [rcx+28h],eax
-// mov     rax,qword ptr [ptd]
-// mov     eax,dword ptr [rax+28h]
-// shr     eax,10h
-// and     eax,7FFFh
-// add     rsp,38h
-// ret
-
-
-// TODO jitter in video, linter, valgrind, unit tests, one more look through
-
 
 void cast_rays(CastState *state)
 {
@@ -82,7 +41,7 @@ void cast_rays(CastState *state)
 
         Math::Vector3 sample = {};
         auto attenuation = Math::Vector3 {1, 1, 1};
-        for(uint32_t bounces = 0; bounces < MAX_BOUNCE_COUNT; ++bounces)
+        for (uint32_t bounces = 0; bounces < MAX_BOUNCE_COUNT; ++bounces)
         {
             Math::Vector3 next_normal = {};
             float hit_distance = FLOAT32_MAX;
@@ -90,12 +49,15 @@ void cast_rays(CastState *state)
             MaterialName hit_material_name = MaterialName::White;
             ++bounces_computed;
 
-            for ( auto &plane : scene->planes ) {
+            for ( auto &plane : scene->planes )
+            {
                 float denominator = inner_product(plane.normal, ray_direction);
 
-                if ((denominator < -tolerance) || (denominator > tolerance)) {
+                if ((denominator < -tolerance) || (denominator > tolerance))
+                {
                     float t = (-plane.distance_from_origin - inner_product(plane.normal, ray_origin)) / denominator;
-                    if ((t > min_hit_distance) && (t < hit_distance)) {
+                    if ((t > min_hit_distance) && (t < hit_distance))
+                    {
                         hit_distance = t;
                         hit_material_name = plane.material_name;
 
@@ -212,11 +174,11 @@ bool render_tile(TileQueue *queue)
     // correct ratio for unequal width and height
     if (image_data.width > image_data.height)
     {
-        state.view_height = state.view_width * ((float)image_data.height / (float)image_data.width);
+        state.view_height = state.view_width * (static_cast<float>(image_data.height) / static_cast<float>(image_data.width));
     }
     else if (image_data.height > image_data.width)
     {
-        state.view_width = state.view_height * ((float)image_data.width / (float)image_data.height);
+        state.view_width = state.view_height * (static_cast<float>(image_data.width) / static_cast<float>(image_data.height));
     }
 
     state.view_center = state.camera_position - (film_distance * state.camera_z_axis);
@@ -229,10 +191,10 @@ bool render_tile(TileQueue *queue)
     for (uint32_t y = y_min; y < one_past_y_max; ++y)
     {
         uint32_t *pixels = get_pixel_pointer(image_data, x_min, y);
-        state.view_y = -1.0f + 2.0f * ((float)y / (float)image_data.height);
+        state.view_y = -1.0f + 2.0f * (static_cast<float>(y) / static_cast<float>(image_data.height));
         for (uint32_t x = x_min; x < one_past_x_max; ++x)
         {
-            state.view_x = -1.0f + 2.0f * ((float)x / (float)image_data.width);
+            state.view_x = -1.0f + 2.0f * (static_cast<float>(x) / static_cast<float>(image_data.width));
 
             cast_rays(&state);
             Math::Vector3 final_color = state.final_color;
@@ -321,7 +283,7 @@ int main(int argc, char **argv)
 
     std::cout << "Total tiles " << total_tiles << std::endl;
     TileQueue queue = {};
-    queue.tile_batches = (TileBatch *)malloc(total_tiles * sizeof(TileBatch));
+    queue.tile_batches = reinterpret_cast<TileBatch *>(malloc(total_tiles * sizeof(TileBatch)));
 
     std::cout << "Configuration: " << CORE_COUNT << " cores with " << tile_width << "x" << tile_height
               << " (" << (tile_width * tile_height * sizeof(uint32_t) / 1024) << "k/tile) " << "tiles\n";
@@ -378,7 +340,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-    while(queue.tiles_done < total_tiles)
+    while (queue.tiles_done < total_tiles)
     {
         if (render_tile(&queue))
         {

@@ -14,90 +14,84 @@ namespace Math
         float x, y, z;
     };
 
-    inline Vector3 operator*(float A, Vector3 B)
+    inline Vector3 operator*(const float a, const Vector3 b)
     {
-        Vector3 Result;
+        Vector3 result = {};
 
-        Result.x = A * B.x;
-        Result.y = A * B.y;
-        Result.z = A * B.z;
+        result.x = a * b.x;
+        result.y = a * b.y;
+        result.z = a * b.z;
 
-        return (Result);
+        return result;
     }
 
-    inline Vector3 operator*(Vector3 B, float A)
+    inline Vector3 operator*(const Vector3 b, const float a)
     {
-        Vector3 Result = A * B;
-
-        return (Result);
+        Vector3 result = a * b;
+        return result;
     }
 
-    inline Vector3 &operator*=(Vector3 &B, float A)
+    inline Vector3 &operator*=(Vector3 &b, const float a)
     {
-        B = A * B;
-
-        return (B);
+        b = a * b;
+        return b;
     }
 
-    inline Vector3 operator/(Vector3 B, float A)
+    inline Vector3 operator/(const Vector3 b, const float a)
     {
-        Vector3 Result = (1.0f / A) * B;
-
-        return (Result);
+        Vector3 result = (1.0f / a) * b;
+        return result;
     }
 
-    inline Vector3 &operator/=(Vector3 &B, float A)
+    inline Vector3 &operator/=(Vector3 &b, const float a)
     {
-        B = B / A;
-
-        return (B);
+        b = b / a;
+        return b;
     }
 
-    inline Vector3 operator-(Vector3 A)
+    inline Vector3 operator-(const Vector3 a)
     {
-        Vector3 Result;
+        Vector3 result = {};
 
-        Result.x = -A.x;
-        Result.y = -A.y;
-        Result.z = -A.z;
+        result.x = -a.x;
+        result.y = -a.y;
+        result.z = -a.z;
 
-        return (Result);
+        return result;
     }
 
-    inline Vector3 operator+(Vector3 A, Vector3 B)
+    inline Vector3 operator+(const Vector3 a, const Vector3 b)
     {
-        Vector3 Result;
+        Vector3 result = {};
 
-        Result.x = A.x + B.x;
-        Result.y = A.y + B.y;
-        Result.z = A.z + B.z;
+        result.x = a.x + b.x;
+        result.y = a.y + b.y;
+        result.z = a.z + b.z;
 
-        return (Result);
+        return result;
     }
 
-    inline Vector3 &operator+=(Vector3 &A, Vector3 B)
+    inline Vector3 &operator+=(Vector3 &a, const Vector3 b)
     {
-        A = A + B;
-
-        return (A);
+        a = a + b;
+        return a;
     }
 
-    inline Vector3 operator-(Vector3 A, Vector3 B)
+    inline Vector3 operator-(const Vector3 a, const Vector3 b)
     {
-        Vector3 Result;
+        Vector3 result = {};
 
-        Result.x = A.x - B.x;
-        Result.y = A.y - B.y;
-        Result.z = A.z - B.z;
+        result.x = a.x - b.x;
+        result.y = a.y - b.y;
+        result.z = a.z - b.z;
 
-        return (Result);
+        return result;
     }
 
-    inline Vector3 &operator-=(Vector3 &A, Vector3 B)
+    inline Vector3 &operator-=(Vector3 &a, const Vector3 b)
     {
-        A = A - B;
-
-        return (A);
+        a = a - b;
+        return a;
     }
 
     inline float square_root(float a)
@@ -106,9 +100,9 @@ namespace Math
         return result;
     }
 
-    inline uint32_t round_float_to_uint32(float f)
+    inline uint32_t round_float_to_uint32(const float f)
     {
-        uint32_t result = (uint32_t) (f + 0.5f);
+        auto result = (uint32_t)lround(f);
         return result;
     }
 
@@ -119,7 +113,43 @@ namespace Math
 
     inline uint32_t xor_shift(RandomSeries *series)
     {
-        // xorshift reference needed
+        // xorshift https://en.wikipedia.org/wiki/Xorshift
+        // used in place of a Linear Congruential Generator or Permutative Congruential Generator
+        // this replaces rand() due to performance reasons listed below:
+
+        //stats before rand() improvement
+        // time=46521ms
+        // total bounces = 1849847016
+        // performance = 0.000025ms/bounce
+
+        // stats after rand() improvement
+        // time=17347ms
+        // total bounces = 1849736461
+        // performance = 0.000009ms/bounce
+
+        // at least 4 calls deep with no actual randomness, no inlining whatsoever
+        //// rand() used thread local storage, hence all the calls
+        // rand.cpp
+        // sub     rsp, 38h
+        // call    __acrt_getptd()
+        //   --> call  internal_getptd_noexit()
+        //        --> call _crt_scoped_get_last_error_reset::
+        //        --> call internal_get_ptd_head()
+        //        --> call _crt_hmodule_traits::get_invalid_value()
+        //            --> call qword ptr [__imp_GetLastError()]
+        //            --> call qword ptr [__imp_SetLastError()]
+        // mov     qword ptr [ptd], rax
+        // mov     rax,qword ptr [ptd]
+        // imul    eax,dword ptr [rax+28h], 343FDh
+        // add     eax,269Ech3
+        // mov     rcx,qword ptr [ptd]
+        // mov     dword ptr [rcx+28h],eax
+        // mov     rax,qword ptr [ptd]
+        // mov     eax,dword ptr [rax+28h]
+        // shr     eax,10h
+        // and     eax,7FFFh
+        // add     rsp,38h
+        // ret
         uint32_t x = series->state;
         x ^= x << 13;
         x ^= x >> 17;
@@ -130,7 +160,7 @@ namespace Math
 
     float random_unilateral(RandomSeries *series)
     {
-        float result = (float) xor_shift(series) / (float) UINT32_MAX;
+        float result = static_cast<float>(xor_shift(series)) / static_cast<float>(UINT32_MAX);
         return result;
     }
 
@@ -140,21 +170,21 @@ namespace Math
         return result;
     }
 
-    inline Vector3 hadamard_product(Vector3 a, Vector3 b)
+    inline Vector3 hadamard_product(const Vector3 a, const Vector3 b)
     {
         Vector3 result = {a.x * b.x, a.y * b.y, a.z * b.z};
         return result;
     }
 
-    inline float inner_product(Vector3 a, Vector3 b)
+    inline float inner_product(const Vector3 a, const Vector3 b)
     {
         float result = a.x * b.x + a.y * b.y + a.z * b.z;
         return result;
     }
 
-    inline Vector3 cross_product(Vector3 a, Vector3 b)
+    inline Vector3 cross_product(const Vector3 a, const Vector3 b)
     {
-        Vector3 result;
+        Vector3 result = {};
 
         result.x = a.y * b.z - a.z * b.y;
         result.y = a.z * b.x - a.x * b.z;
@@ -163,7 +193,10 @@ namespace Math
         return result;
     }
 
-    float inverse_sqrt(float x)
+    // commonly used replacement for inverse square root due to performance
+    // improvements over the standard call to sqrt
+    // https://en.wikipedia.org/wiki/Fast_inverse_square_root
+    float inverse_sqrt(const float x)
     {
         float x_half = 0.5f * x;
         union
@@ -180,12 +213,13 @@ namespace Math
 
     // automatic epsilon check
     // get length, if length is greater than epsilon, otherwise return zero
-    inline Vector3 normalize_or_zero(Vector3 a)
+    inline Vector3 normalize_or_zero(const Vector3 a)
     {
         Vector3 result = {};
 
         float l = inner_product(a, a);
-        if (l > SQUARED_EPSILON) {
+        if (l > SQUARED_EPSILON)
+        {
             result = a * inverse_sqrt(l);
         }
 
@@ -193,15 +227,9 @@ namespace Math
     }
 
     // linear interpolate
-    inline Vector3 lerp(Vector3 a, float t, Vector3 b)
+    inline Vector3 lerp(const Vector3 a, const float t, const Vector3 b)
     {
         Vector3 result = (1.0f - t) * a + t * b;
-        return result;
-    }
-
-    inline Vector3 lerpVector3(Vector3 a, float t, Vector3 b)
-    {
-        Vector3 result = a * (1.0f - t) + b * t;
         return result;
     }
 
@@ -210,7 +238,8 @@ namespace Math
         l = std::clamp(l, 0.0f, 1.0f);
 
         float s = l * SLOPE_HORIZONTAL;
-        if (l > LINEAR_CUTOFF) {
+        if (l > LINEAR_CUTOFF)
+        {
             s = 1.055f * pow(l, 1.0f / 2.4f) - 0.055f;
         }
 
@@ -226,4 +255,4 @@ namespace Math
 
         return result;
     }
-}
+} // namespace Math
