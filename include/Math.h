@@ -158,13 +158,13 @@ namespace Math
         return x;
     }
 
-    float random_unilateral(RandomSeries *series)
+    inline float random_unilateral(RandomSeries *series)
     {
         float result = static_cast<float>(xor_shift(series)) / static_cast<float>(UINT32_MAX);
         return result;
     }
 
-    float random_bilateral(RandomSeries *series)
+    inline float random_bilateral(RandomSeries *series)
     {
         float result = -1.0f + 2.0f * random_unilateral(series);
         return result;
@@ -196,7 +196,7 @@ namespace Math
     // commonly used replacement for inverse square root due to performance
     // improvements over the standard call to sqrt
     // https://en.wikipedia.org/wiki/Fast_inverse_square_root
-    float inverse_sqrt(const float x)
+    inline float inverse_sqrt(const float x)
     {
         float x_half = 0.5f * x;
         union
@@ -233,7 +233,7 @@ namespace Math
         return result;
     }
 
-    float linear_to_sRGB(float l)
+    inline float linear_to_sRGB(float l)
     {
         l = std::clamp(l, 0.0f, 1.0f);
 
