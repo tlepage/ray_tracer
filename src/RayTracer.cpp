@@ -274,9 +274,11 @@ int main(int argc, char **argv)
 
     Bitmap bitmap = Bitmap(IMAGE_WIDTH, IMAGE_HEIGHT);
     std::unique_ptr<ImageData> image_data = bitmap.get_image_data();
-    uint32_t tile_width = image_data->width / CORE_COUNT;
-    uint32_t tile_height = tile_width;
-    tile_height = tile_width = 64;
+
+    // 64x64 tiles seem to be a sweet spot; keeping at that resolution
+    uint32_t tile_width = 64;  // image_data->width / CORE_COUNT;
+    uint32_t tile_height = 64; // tile_width;
+
     uint32_t tile_count_x = (IMAGE_WIDTH + tile_width - 1) / tile_width;
     uint32_t tile_count_y = (IMAGE_HEIGHT + tile_height - 1) / tile_height;
     uint32_t total_tiles = tile_count_x * tile_count_y;
