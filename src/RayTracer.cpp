@@ -8,17 +8,17 @@
 void cast_rays(CastState *state)
 {
     Scene *scene = state->scene;
-    float view_x = state->view_x;
-    float view_y = state->view_y;
-    float half_pixel_height = state->half_pixel_height;
-    float half_pixel_width = state->half_pixel_width;
-    Math::Vector3 view_center = state->view_center;
-    float half_view_width = 0.5f * state->view_width;
-    float half_view_height = 0.5f * state->view_height;
+    const float view_x = state->view_x;
+    const float view_y = state->view_y;
+    const float half_pixel_height = state->half_pixel_height;
+    const float half_pixel_width = state->half_pixel_width;
+    const Math::Vector3 view_center = state->view_center;
+    const float half_view_width = 0.5f * state->view_width;
+    const float half_view_height = 0.5f * state->view_height;
 
-    Math::Vector3 camera_x_axis = state->camera_x_axis;
-    Math::Vector3 camera_y_axis = state->camera_y_axis;
-    Math::Vector3 camera_position = state->camera_position;
+    const Math::Vector3 camera_x_axis = state->camera_x_axis;
+    const Math::Vector3 camera_y_axis = state->camera_y_axis;
+    const Math::Vector3 camera_position = state->camera_position;
 
     Math::RandomSeries series = state->series;
 
@@ -49,7 +49,7 @@ void cast_rays(CastState *state)
             MaterialName hit_material_name = MaterialName::White;
             ++bounces_computed;
 
-            for ( auto &plane : scene->planes )
+            for (auto &plane : scene->planes)
             {
                 float denominator = inner_product(plane.normal, ray_direction);
 

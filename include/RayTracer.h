@@ -7,16 +7,15 @@
 #include <vector>
 #include "Math.h"
 
-#define FLOAT32_MAX FLT_MAX
-
-#define MINIMUM_HIT_DISTANCE 0.001f
-#define TOLERANCE 0.0001f
-#define IMAGE_WIDTH 1280
-#define IMAGE_HEIGHT 720
-#define CORE_COUNT 8
-#define MAX_BOUNCE_COUNT 8
-#define RAYS_PER_PIXEL 512
-#define CONTRIBUTION (1.0f / (float)RAYS_PER_PIXEL)
+constexpr float FLOAT32_MAX = FLT_MAX;
+constexpr float MINIMUM_HIT_DISTANCE = 0.001f;
+constexpr float TOLERANCE = 0.0001f;
+constexpr uint32_t IMAGE_WIDTH = 1280;
+constexpr uint32_t IMAGE_HEIGHT = 720;
+constexpr uint32_t CORE_COUNT = 8;
+constexpr uint32_t MAX_BOUNCE_COUNT = 8;
+constexpr uint32_t RAYS_PER_PIXEL = 512;
+constexpr float CONTRIBUTION = (1.0f / (static_cast<float>(RAYS_PER_PIXEL)));
 
 enum class MaterialName
 {
@@ -40,7 +39,7 @@ struct Material
 };
 
 // TODO(tom): make consts out of the color names
-std::map<MaterialName, Material> MATERIALS =
+const std::map<const MaterialName, const Material> MATERIALS =
 {
     { MaterialName::White, Material {0.5f, Math::Vector3 {1.0f, 1.0f, 1.0f}, Math::Vector3 {} }},
     { MaterialName::Metallic, Material {0.8f, Math::Vector3 {}, Math::Vector3 {0.5f, 0.5f, 0.5f} }},

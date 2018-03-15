@@ -14,7 +14,7 @@ namespace Math
         float x, y, z;
     };
 
-    inline Vector3 operator*(const float a, const Vector3 b)
+    inline Vector3 operator*(const float &a, const Vector3 &b)
     {
         Vector3 result = {};
 
@@ -25,7 +25,7 @@ namespace Math
         return result;
     }
 
-    inline Vector3 operator*(const Vector3 b, const float a)
+    inline Vector3 operator*(const Vector3 &b, const float a)
     {
         Vector3 result = a * b;
         return result;
@@ -37,7 +37,7 @@ namespace Math
         return b;
     }
 
-    inline Vector3 operator/(const Vector3 b, const float a)
+    inline Vector3 operator/(const Vector3 &b, const float a)
     {
         Vector3 result = (1.0f / a) * b;
         return result;
@@ -49,7 +49,7 @@ namespace Math
         return b;
     }
 
-    inline Vector3 operator-(const Vector3 a)
+    inline Vector3 operator-(const Vector3 &a)
     {
         Vector3 result = {};
 
@@ -60,7 +60,7 @@ namespace Math
         return result;
     }
 
-    inline Vector3 operator+(const Vector3 a, const Vector3 b)
+    inline Vector3 operator+(const Vector3 &a, const Vector3 &b)
     {
         Vector3 result = {};
 
@@ -71,13 +71,13 @@ namespace Math
         return result;
     }
 
-    inline Vector3 &operator+=(Vector3 &a, const Vector3 b)
+    inline Vector3 &operator+=(Vector3 &a, const Vector3 &b)
     {
         a = a + b;
         return a;
     }
 
-    inline Vector3 operator-(const Vector3 a, const Vector3 b)
+    inline Vector3 operator-(const Vector3 &a, const Vector3 &b)
     {
         Vector3 result = {};
 
@@ -88,7 +88,7 @@ namespace Math
         return result;
     }
 
-    inline Vector3 &operator-=(Vector3 &a, const Vector3 b)
+    inline Vector3 &operator-=(Vector3 &a, const Vector3 &b)
     {
         a = a - b;
         return a;
@@ -170,19 +170,19 @@ namespace Math
         return result;
     }
 
-    inline Vector3 hadamard_product(const Vector3 a, const Vector3 b)
+    inline Vector3 hadamard_product(const Vector3 &a, const Vector3 &b)
     {
         Vector3 result = {a.x * b.x, a.y * b.y, a.z * b.z};
         return result;
     }
 
-    inline float inner_product(const Vector3 a, const Vector3 b)
+    inline float inner_product(const Vector3 &a, const Vector3 &b)
     {
         float result = a.x * b.x + a.y * b.y + a.z * b.z;
         return result;
     }
 
-    inline Vector3 cross_product(const Vector3 a, const Vector3 b)
+    inline Vector3 cross_product(const Vector3 &a, const Vector3 &b)
     {
         Vector3 result = {};
 
@@ -213,7 +213,7 @@ namespace Math
 
     // automatic epsilon check
     // get length, if length is greater than epsilon, otherwise return zero
-    inline Vector3 normalize_or_zero(const Vector3 a)
+    inline Vector3 normalize_or_zero(const Vector3 &a)
     {
         Vector3 result = {};
 
@@ -227,7 +227,7 @@ namespace Math
     }
 
     // linear interpolate
-    inline Vector3 lerp(const Vector3 a, const float t, const Vector3 b)
+    inline Vector3 lerp(const Vector3 &a, const float t, const Vector3 &b)
     {
         Vector3 result = (1.0f - t) * a + t * b;
         return result;
@@ -246,7 +246,7 @@ namespace Math
         return s;
     }
 
-    inline uint32_t pack_BGRA(Vector3 unpacked)
+    inline uint32_t pack_BGRA(Vector3 &unpacked)
     {
         uint32_t result = ((255 << 24) |
                            (round_float_to_uint32(unpacked.x) << 16) |
