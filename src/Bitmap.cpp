@@ -20,7 +20,7 @@ inline uint32_t Bitmap::get_total_pixel_size() const
     return (image_data.width * image_data.height * sizeof(uint32_t));
 }
 
-void Bitmap::write_image(char *file_name)
+void Bitmap::write_image(const std::string &file_name)
 {
     BitmapHeader header = compose_header();
 
@@ -31,9 +31,9 @@ void Bitmap::write_image(char *file_name)
     file.close();
 }
 
-std::unique_ptr<ImageData> Bitmap::get_image_data()
+const ImageData *Bitmap::get_image_data() const
 {
-    return std::make_unique<ImageData>(image_data);
+    return &image_data;
 }
 
 const BitmapHeader Bitmap::compose_header()

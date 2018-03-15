@@ -270,7 +270,7 @@ int main(int argc, char **argv)
     scene.spheres.push_back(Sphere { Vector::Vector3 {7.0f, 17.0f, 0.0f}, 5.0f, MaterialName::LightBlueReflective});
 
     Bitmap bitmap = Bitmap(IMAGE_WIDTH, IMAGE_HEIGHT);
-    std::unique_ptr<ImageData> image_data = bitmap.get_image_data();
+    const ImageData *image_data = bitmap.get_image_data();
 
     // 64x64 tiles seem to be a sweet spot; keeping at that resolution
     uint32_t tile_width = 64;  // image_data->width / CORE_COUNT;
@@ -348,7 +348,9 @@ int main(int argc, char **argv)
     std::cout << "Ray casting time: " << time_elapsed << "ms\n";
     std::cout << "Total bounces: " << queue.bounces_computed << std::endl;
     std::cout << "Performance: " << std::fixed << (time_elapsed / queue.bounces_computed) << "ms/bounce\n";
-    bitmap.write_image("test.bmp");
+
+    std::string file_name = "test.bmp";
+    bitmap.write_image(file_name);
 
     std::cout << "\nShit's Done, Bitch!\n";
     return 0;

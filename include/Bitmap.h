@@ -47,7 +47,7 @@ private:
     const BitmapHeader compose_header();
 public:
     Bitmap(uint32_t width, uint32_t height);
-    void write_image(char* file_name);
-    std::unique_ptr<ImageData> get_image_data();
+    void write_image(const std::string &file_name);
+    const ImageData *get_image_data() const;
 };
 
