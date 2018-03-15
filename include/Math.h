@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
+#include "Vector.h"
 
 #define LOMONT_CONSTANT 0x5f375a86
 #define SQUARED_EPSILON 0.00000001f
@@ -9,98 +10,13 @@
 
 namespace Math
 {
-    struct Vector3
-    {
-        float x, y, z;
-    };
-
-    inline Vector3 operator*(const float &a, const Vector3 &b)
-    {
-        Vector3 result = {};
-
-        result.x = a * b.x;
-        result.y = a * b.y;
-        result.z = a * b.z;
-
-        return result;
-    }
-
-    inline Vector3 operator*(const Vector3 &b, const float a)
-    {
-        Vector3 result = a * b;
-        return result;
-    }
-
-    inline Vector3 &operator*=(Vector3 &b, const float a)
-    {
-        b = a * b;
-        return b;
-    }
-
-    inline Vector3 operator/(const Vector3 &b, const float a)
-    {
-        Vector3 result = (1.0f / a) * b;
-        return result;
-    }
-
-    inline Vector3 &operator/=(Vector3 &b, const float a)
-    {
-        b = b / a;
-        return b;
-    }
-
-    inline Vector3 operator-(const Vector3 &a)
-    {
-        Vector3 result = {};
-
-        result.x = -a.x;
-        result.y = -a.y;
-        result.z = -a.z;
-
-        return result;
-    }
-
-    inline Vector3 operator+(const Vector3 &a, const Vector3 &b)
-    {
-        Vector3 result = {};
-
-        result.x = a.x + b.x;
-        result.y = a.y + b.y;
-        result.z = a.z + b.z;
-
-        return result;
-    }
-
-    inline Vector3 &operator+=(Vector3 &a, const Vector3 &b)
-    {
-        a = a + b;
-        return a;
-    }
-
-    inline Vector3 operator-(const Vector3 &a, const Vector3 &b)
-    {
-        Vector3 result = {};
-
-        result.x = a.x - b.x;
-        result.y = a.y - b.y;
-        result.z = a.z - b.z;
-
-        return result;
-    }
-
-    inline Vector3 &operator-=(Vector3 &a, const Vector3 &b)
-    {
-        a = a - b;
-        return a;
-    }
-
-    inline float square_root(float a)
+    inline auto square_root(float a)
     {
         auto result = sqrt(a);
         return result;
     }
 
-    inline uint32_t round_float_to_uint32(const float f)
+    inline auto round_float_to_uint32(float f)
     {
         auto result = (uint32_t)lround(f);
         return result;
@@ -111,7 +27,7 @@ namespace Math
         uint32_t state;
     };
 
-    inline uint32_t xor_shift(RandomSeries *series)
+    inline auto xor_shift(RandomSeries *series)
     {
         // xorshift https://en.wikipedia.org/wiki/Xorshift
         // used in place of a Linear Congruential Generator or Permutative Congruential Generator
@@ -158,33 +74,33 @@ namespace Math
         return x;
     }
 
-    inline float random_unilateral(RandomSeries *series)
+    inline auto random_unilateral(RandomSeries *series)
     {
         float result = static_cast<float>(xor_shift(series)) / static_cast<float>(UINT32_MAX);
         return result;
     }
 
-    inline float random_bilateral(RandomSeries *series)
+    inline auto random_bilateral(RandomSeries *series)
     {
         float result = -1.0f + 2.0f * random_unilateral(series);
         return result;
     }
 
-    inline Vector3 hadamard_product(const Vector3 &a, const Vector3 &b)
+    inline auto hadamard_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
-        Vector3 result = {a.x * b.x, a.y * b.y, a.z * b.z};
+        Vector::Vector3 result = {a.x * b.x, a.y * b.y, a.z * b.z};
         return result;
     }
 
-    inline float inner_product(const Vector3 &a, const Vector3 &b)
+    inline auto inner_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
         float result = a.x * b.x + a.y * b.y + a.z * b.z;
         return result;
     }
 
-    inline Vector3 cross_product(const Vector3 &a, const Vector3 &b)
+    inline auto cross_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
-        Vector3 result = {};
+        Vector::Vector3 result = {};
 
         result.x = a.y * b.z - a.z * b.y;
         result.y = a.z * b.x - a.x * b.z;
@@ -196,7 +112,7 @@ namespace Math
     // commonly used replacement for inverse square root due to performance
     // improvements over the standard call to sqrt
     // https://en.wikipedia.org/wiki/Fast_inverse_square_root
-    inline float inverse_sqrt(const float x)
+    inline auto inverse_sqrt(const float x)
     {
         float x_half = 0.5f * x;
         union
@@ -213,9 +129,9 @@ namespace Math
 
     // automatic epsilon check
     // get length, if length is greater than epsilon, otherwise return zero
-    inline Vector3 normalize_or_zero(const Vector3 &a)
+    inline auto normalize_or_zero(const Vector::Vector3 &a)
     {
-        Vector3 result = {};
+        Vector::Vector3 result = {};
 
         float l = inner_product(a, a);
         if (l > SQUARED_EPSILON)
@@ -227,13 +143,13 @@ namespace Math
     }
 
     // linear interpolate
-    inline Vector3 lerp(const Vector3 &a, const float t, const Vector3 &b)
+    inline auto lerp(const Vector::Vector3 &a, const float t, const Vector::Vector3 &b)
     {
-        Vector3 result = (1.0f - t) * a + t * b;
+        Vector::Vector3 result = (1.0f - t) * a + t * b;
         return result;
     }
 
-    inline float linear_to_sRGB(float l)
+    inline auto linear_to_sRGB(float l)
     {
         l = std::clamp(l, 0.0f, 1.0f);
 
@@ -246,7 +162,7 @@ namespace Math
         return s;
     }
 
-    inline uint32_t pack_BGRA(Vector3 &unpacked)
+    inline auto pack_BGRA(Vector::Vector3 &unpacked)
     {
         uint32_t result = ((255 << 24) |
                            (round_float_to_uint32(unpacked.x) << 16) |

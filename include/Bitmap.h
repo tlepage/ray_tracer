@@ -2,12 +2,12 @@
 #include <cstdint>
 #include <memory>
 
-#define BITMAP_ID_FIELD 0x4D42
+constexpr uint32_t BITMAP_ID_FIELD = 0x4D42;
 
 // this is BitmapOffset(4) - FileSize(4) - FileType(2) - Reserved1(2) - Reserved(2) in Bytes
-#define HEADER_SIZE_EXCLUDE_BYTES 14
-#define BITMAP_PLANES 1
-#define BITS_PER_PIXEL 32
+constexpr uint32_t HEADER_SIZE_EXCLUDE_BYTES = 14;
+constexpr uint32_t BITMAP_PLANES = 1;
+constexpr uint32_t BITS_PER_PIXEL = 32;
 
 #pragma pack(push, 1)
 struct BitmapHeader

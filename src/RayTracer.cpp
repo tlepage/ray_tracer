@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cassert>
 #include "../include/Bitmap.h"
 #include "../include/RayTracer.h"
 
@@ -12,38 +11,38 @@ void cast_rays(CastState *state)
     const float view_y = state->view_y;
     const float half_pixel_height = state->half_pixel_height;
     const float half_pixel_width = state->half_pixel_width;
-    const Math::Vector3 view_center = state->view_center;
+    const Vector::Vector3 view_center = state->view_center;
     const float half_view_width = 0.5f * state->view_width;
     const float half_view_height = 0.5f * state->view_height;
 
-    const Math::Vector3 camera_x_axis = state->camera_x_axis;
-    const Math::Vector3 camera_y_axis = state->camera_y_axis;
-    const Math::Vector3 camera_position = state->camera_position;
+    const Vector::Vector3 camera_x_axis = state->camera_x_axis;
+    const Vector::Vector3 camera_y_axis = state->camera_y_axis;
+    const Vector::Vector3 camera_position = state->camera_position;
 
     Math::RandomSeries series = state->series;
 
     uint64_t bounces_computed = 0;
-    Math::Vector3 final_color = {};
+    Vector::Vector3 final_color = {};
 
     for (uint32_t ray_index = 0; ray_index < RAYS_PER_PIXEL; ++ray_index)
     {
         float x_offset = view_x + random_bilateral(&series) * half_pixel_width;
         float y_offset = view_y + random_bilateral(&series) * half_pixel_height;
 
-        Math::Vector3 film_position = view_center + (x_offset * half_view_width * camera_x_axis)
+        Vector::Vector3 film_position = view_center + (x_offset * half_view_width * camera_x_axis)
                            + (y_offset * half_view_height * camera_y_axis);
 
-        Math::Vector3 ray_origin = camera_position;
-        Math::Vector3 ray_direction = normalize_or_zero(film_position - camera_position);
+        Vector::Vector3 ray_origin = camera_position;
+        Vector::Vector3 ray_direction = Math::normalize_or_zero(film_position - camera_position);
 
         float min_hit_distance = MINIMUM_HIT_DISTANCE;
         float tolerance = TOLERANCE;
 
-        Math::Vector3 sample = {};
-        auto attenuation = Math::Vector3 {1, 1, 1};
+        Vector::Vector3 sample = {};
+        auto attenuation = Vector::Vector3 {1, 1, 1};
         for (uint32_t bounces = 0; bounces < MAX_BOUNCE_COUNT; ++bounces)
         {
-            Math::Vector3 next_normal = {};
+            Vector::Vector3 next_normal = {};
             float hit_distance = FLOAT32_MAX;
 
             MaterialName hit_material_name = MaterialName::White;
@@ -51,11 +50,11 @@ void cast_rays(CastState *state)
 
             for (auto &plane : scene->planes)
             {
-                float denominator = inner_product(plane.normal, ray_direction);
+                float denominator = Math::inner_product(plane.normal, ray_direction);
 
                 if ((denominator < -tolerance) || (denominator > tolerance))
                 {
-                    float t = (-plane.distance_from_origin - inner_product(plane.normal, ray_origin)) / denominator;
+                    float t = (-plane.distance_from_origin - Math::inner_product(plane.normal, ray_origin)) / denominator;
                     if ((t > min_hit_distance) && (t < hit_distance))
                     {
                         hit_distance = t;
@@ -68,9 +67,9 @@ void cast_rays(CastState *state)
 
             for (auto &sphere : scene->spheres)
             {
-                Math::Vector3 sphere_relative_ray_origin = ray_origin - sphere.position;
-                float a = inner_product(ray_direction, ray_direction);
-                float b = 2.0f * inner_product(ray_direction, sphere_relative_ray_origin);
+                Vector::Vector3 sphere_relative_ray_origin = ray_origin - sphere.position;
+                float a = Math::inner_product(ray_direction, ray_direction);
+                float b = 2.0f * Math::inner_product(ray_direction, sphere_relative_ray_origin);
                 float c = Math::inner_product(sphere_relative_ray_origin, sphere_relative_ray_origin) - (sphere.radius * sphere.radius);
                 float denominator = 2.0f * a;
                 float root_term = Math::square_root(b * b - 4.0f * a * c);
@@ -91,7 +90,7 @@ void cast_rays(CastState *state)
                         hit_distance = t;
                         hit_material_name = sphere.material_name;
 
-                        next_normal = normalize_or_zero(t * ray_direction + sphere_relative_ray_origin);
+                        next_normal = Math::normalize_or_zero(t * ray_direction + sphere_relative_ray_origin);
                     }
                 }
             }
@@ -100,25 +99,23 @@ void cast_rays(CastState *state)
             {
                 Material material = MATERIALS.at(hit_material_name);
 
-                sample += hadamard_product(attenuation, material.emit_color);
-                float cosine_attenuation = (inner_product(-ray_direction, next_normal) + 0.5f);
-                if (cosine_attenuation < 0)
-                {
-                    cosine_attenuation = 0;
-                }
-                attenuation = hadamard_product(attenuation, cosine_attenuation * material.reflection_color);
+                sample += Math::hadamard_product(attenuation, material.emit_color);
+                float cosine_attenuation = (Math::inner_product(-ray_direction, next_normal) + 0.5f);
+                cosine_attenuation = std::max(cosine_attenuation, 0.0f);
+
+                attenuation = Math::hadamard_product(attenuation, cosine_attenuation * material.reflection_color);
                 ray_origin += hit_distance * ray_direction;
-                Math::Vector3 pure_bounce = ray_direction - 2.0f * inner_product(ray_direction, next_normal) * next_normal;
-                Math::Vector3 random_bounce = normalize_or_zero(next_normal +
-                                                                Math::Vector3 {random_bilateral(&series),
-                                                                               random_bilateral(&series),
-                                                                               random_bilateral(&series)});
-                ray_direction = normalize_or_zero(lerp(random_bounce, material.specular, pure_bounce));
+                Vector::Vector3 pure_bounce = ray_direction - 2.0f * Math::inner_product(ray_direction, next_normal) * next_normal;
+                Vector::Vector3 random_bounce = Math::normalize_or_zero(next_normal +
+                                                                Vector::Vector3 {random_bilateral(&series),
+                                                                                 random_bilateral(&series),
+                                                                                 random_bilateral(&series)});
+                ray_direction = Math::normalize_or_zero(Math::lerp(random_bounce, material.specular, pure_bounce));
             }
             else
             {
                 Material material = MATERIALS.at(MaterialName::White);
-                sample += hadamard_product(attenuation, material.emit_color);
+                sample += Math::hadamard_product(attenuation, material.emit_color);
                 break;
             }
         }
@@ -163,10 +160,10 @@ bool render_tile(TileQueue *queue)
     state.scene = order->scene;
     state.series = order->entropy;
 
-    state.camera_position = Math::Vector3 {0, -10, 1};
-    state.camera_z_axis = normalize_or_zero(state.camera_position);
-    state.camera_x_axis = normalize_or_zero(cross_product(Math::Vector3 {0, 0, 1}, state.camera_z_axis));
-    state.camera_y_axis = normalize_or_zero(cross_product(state.camera_z_axis, state.camera_x_axis));
+    state.camera_position = Vector::Vector3 {0, -10, 1};
+    state.camera_z_axis = Math::normalize_or_zero(state.camera_position);
+    state.camera_x_axis = Math::normalize_or_zero(Math::cross_product(Vector::Vector3 {0, 0, 1}, state.camera_z_axis));
+    state.camera_y_axis = Math::normalize_or_zero(Math::cross_product(state.camera_z_axis, state.camera_x_axis));
 
     state.view_width = 1.0f;
     state.view_height = 1.0f;
@@ -197,16 +194,16 @@ bool render_tile(TileQueue *queue)
             state.view_x = -1.0f + 2.0f * (static_cast<float>(x) / static_cast<float>(image_data.width));
 
             cast_rays(&state);
-            Math::Vector3 final_color = state.final_color;
+            Vector::Vector3 final_color = state.final_color;
 
-            Math::Vector3 bitmap_color =
+            Vector::Vector3 bitmap_color =
             {
-                    255.0f * Math::linear_to_sRGB(final_color.x),
-                    255.0f * Math::linear_to_sRGB(final_color.y),
-                    255.0f * Math::linear_to_sRGB(final_color.z)
+                255.0f * Math::linear_to_sRGB(final_color.x),
+                255.0f * Math::linear_to_sRGB(final_color.y),
+                255.0f * Math::linear_to_sRGB(final_color.z)
             };
 
-            uint32_t packed_bitmap_color_value = pack_BGRA(bitmap_color);
+            uint32_t packed_bitmap_color_value = Math::pack_BGRA(bitmap_color);
             *pixels++ = packed_bitmap_color_value;
         }
     }
@@ -243,34 +240,34 @@ int main(int argc, char **argv)
     std::cout << "clocks/sec: " << CLOCKS_PER_SEC << std::endl;
 
     Scene scene = {};
-    scene.planes.push_back(Plane { Math::Vector3 {0.0f, 0.0f, 1.0f}, 0.0f, MaterialName::Metallic });
-    scene.spheres.push_back(Sphere { Math::Vector3 {0.0f, 2.0f, 1.8f}, 0.5f, MaterialName::Orange});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.2f, 2.0f, 1.8f}, 0.5f, MaterialName::MirrorBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {0.0f, 2.0f, 2.9f}, 0.5f, MaterialName::MirrorBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {1.2f, 2.0f, 1.8f}, 0.5f, MaterialName::MirrorBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {0.0f, 2.0f, 0.7f}, 0.5f, MaterialName::MirrorBlue});
+    scene.planes.push_back(Plane { Vector::Vector3 {0.0f, 0.0f, 1.0f}, 0.0f, MaterialName::Metallic });
+    scene.spheres.push_back(Sphere { Vector::Vector3 {0.0f, 2.0f, 1.8f}, 0.5f, MaterialName::Orange});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.2f, 2.0f, 1.8f}, 0.5f, MaterialName::MirrorBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {0.0f, 2.0f, 2.9f}, 0.5f, MaterialName::MirrorBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {1.2f, 2.0f, 1.8f}, 0.5f, MaterialName::MirrorBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {0.0f, 2.0f, 0.7f}, 0.5f, MaterialName::MirrorBlue});
 
-    scene.spheres.push_back(Sphere { Math::Vector3 {0.8f, -3.6f, 0.3f}, 0.25f, MaterialName::Green});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.7f, 4.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-2.0f, 3.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-2.5f, 3.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-3.0f, 2.8f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-3.4f, 2.4f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-4.0f, 2.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-4.5f, 2.8f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-5.0f, 3.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-5.5f, 3.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {0.8f, -3.6f, 0.3f}, 0.25f, MaterialName::Green});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.7f, 4.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-2.0f, 3.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-2.5f, 3.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-3.0f, 2.8f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-3.4f, 2.4f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-4.0f, 2.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-4.5f, 2.8f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-5.0f, 3.2f, 0.3f}, 0.1f, MaterialName::LightBlue});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-5.5f, 3.6f, 0.3f}, 0.1f, MaterialName::LightBlue});
 
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.2f, -4.6f, 0.3f}, 0.1f, MaterialName::Raspberry});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.8f, -4.6f, 0.3f}, 0.1f, MaterialName::Raspberry});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.4f, -5.3f, 0.3f}, 0.1f, MaterialName::Raspberry});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.6f, -4.0f, 0.3f}, 0.1f, MaterialName::Raspberry});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-1.4f, -5.0f, 0.15f}, 0.1f, MaterialName::Green});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.2f, -4.6f, 0.3f}, 0.1f, MaterialName::Raspberry});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.8f, -4.6f, 0.3f}, 0.1f, MaterialName::Raspberry});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.4f, -5.3f, 0.3f}, 0.1f, MaterialName::Raspberry});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.6f, -4.0f, 0.3f}, 0.1f, MaterialName::Raspberry});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-1.4f, -5.0f, 0.15f}, 0.1f, MaterialName::Green});
 
-    scene.spheres.push_back(Sphere { Math::Vector3 {4.0f, 1.0f, 2.0f}, 1.5f, MaterialName::Violet});
-    scene.spheres.push_back(Sphere { Math::Vector3 {-4.0f, 5.0f, 1.0f}, 2.0f, MaterialName::LightGreen});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {4.0f, 1.0f, 2.0f}, 1.5f, MaterialName::Violet});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {-4.0f, 5.0f, 1.0f}, 2.0f, MaterialName::LightGreen});
 
-    scene.spheres.push_back(Sphere { Math::Vector3 {7.0f, 17.0f, 0.0f}, 5.0f, MaterialName::LightBlueReflective});
+    scene.spheres.push_back(Sphere { Vector::Vector3 {7.0f, 17.0f, 0.0f}, 5.0f, MaterialName::LightBlueReflective});
 
     Bitmap bitmap = Bitmap(IMAGE_WIDTH, IMAGE_HEIGHT);
     std::unique_ptr<ImageData> image_data = bitmap.get_image_data();
@@ -346,7 +343,7 @@ int main(int argc, char **argv)
     {
         if (render_tile(&queue))
         {
-            std::cout << "\rRay casting " << 100 * (uint32_t) queue.tiles_done / total_tiles << "%...";
+            std::cout << "\rRay casting " << (100 * static_cast<uint32_t>(queue.tiles_done) / total_tiles) << "%...";
             fflush(stdout);
         }
     }
