@@ -3,23 +3,21 @@
 #include <algorithm>
 #include "Vector.h"
 
-#define LOMONT_CONSTANT 0x5f375a86
-#define SQUARED_EPSILON 0.00000001f
-#define LINEAR_CUTOFF 0.0031308f
-#define SLOPE_HORIZONTAL 12.92f
+constexpr uint32_t LOMONT_CONSTANT = 0x5f375a86;
+constexpr float SQUARED_EPSILON = 0.00000001f;
+constexpr float LINEAR_CUTOFF = 0.0031308f;
+constexpr float SLOPE_HORIZONTAL = 12.92f;
 
 namespace Math
 {
     inline auto square_root(float a)
     {
-        auto result = sqrt(a);
-        return result;
+        return sqrt(a);
     }
 
     inline auto round_float_to_uint32(float f)
     {
-        auto result = (uint32_t)lround(f);
-        return result;
+        return (uint32_t)lround(f);
     }
 
     struct RandomSeries
@@ -76,14 +74,12 @@ namespace Math
 
     inline auto random_unilateral(RandomSeries *series)
     {
-        float result = static_cast<float>(xor_shift(series)) / static_cast<float>(UINT32_MAX);
-        return result;
+        return static_cast<float>(xor_shift(series)) / static_cast<float>(UINT32_MAX);
     }
 
     inline auto random_bilateral(RandomSeries *series)
     {
-        float result = -1.0f + 2.0f * random_unilateral(series);
-        return result;
+        return (-1.0f + 2.0f * random_unilateral(series));
     }
 
     inline auto hadamard_product(const Vector::Vector3 &a, const Vector::Vector3 &b)

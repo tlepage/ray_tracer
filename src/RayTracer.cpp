@@ -107,9 +107,9 @@ void cast_rays(CastState *state)
                 ray_origin += hit_distance * ray_direction;
                 Vector::Vector3 pure_bounce = ray_direction - 2.0f * Math::inner_product(ray_direction, next_normal) * next_normal;
                 Vector::Vector3 random_bounce = Math::normalize_or_zero(next_normal +
-                                                                Vector::Vector3 {random_bilateral(&series),
-                                                                                 random_bilateral(&series),
-                                                                                 random_bilateral(&series)});
+                                                                        Vector::Vector3 {random_bilateral(&series),
+                                                                                         random_bilateral(&series),
+                                                                                         random_bilateral(&series)});
                 ray_direction = Math::normalize_or_zero(Math::lerp(random_bounce, material.specular, pure_bounce));
             }
             else
@@ -292,20 +292,14 @@ int main(int argc, char **argv)
     {
         uint32_t min_y = tile_y * tile_height;
         uint32_t one_past_max_y = min_y + tile_height;
-        if (one_past_max_y > IMAGE_HEIGHT)
-        {
-            one_past_max_y = IMAGE_HEIGHT;
-        }
+        one_past_max_y = std::min(one_past_max_y, IMAGE_HEIGHT);
 
         for (uint32_t tile_x = 0; tile_x < tile_count_x; ++tile_x)
         {
             uint32_t min_x = tile_x * tile_width;
             uint32_t one_past_max_x = min_x + tile_width;
 
-            if (one_past_max_x > IMAGE_WIDTH)
-            {
-                one_past_max_x = IMAGE_WIDTH;
-            }
+            one_past_max_x = std::min(one_past_max_x, IMAGE_WIDTH);
 
             TileBatch *batch = queue.tile_batches + queue.tile_batch_count++;
             assert(queue.tile_batch_count <= total_tiles);

@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <cassert>
 #include "../include/Bitmap.h"
 
 Bitmap::Bitmap(uint32_t width, uint32_t height)
@@ -13,24 +15,20 @@ Bitmap::Bitmap(uint32_t width, uint32_t height)
     image_data.pixels = (uint32_t *)malloc(output_pixel_size);
 }
 
-inline uint32_t Bitmap::get_total_pixel_size() const {
+inline uint32_t Bitmap::get_total_pixel_size() const
+{
     return (image_data.width * image_data.height * sizeof(uint32_t));
 }
 
 void Bitmap::write_image(char *file_name)
 {
     BitmapHeader header = compose_header();
-    FILE *file = fopen(file_name, "wb");
-    if(file)
-    {
-        fwrite(&header, sizeof(header), 1, file);
-        fwrite(image_data.pixels, output_pixel_size, 1, file);
-        fclose(file);
-    }
-    else
-    {
-        std::cout << "ERROR: Unable to write output file " << file_name << std::endl;
-    }
+
+    std::ofstream file (file_name, std::ios::out | std::ios::binary | std::ios::trunc);
+    assert(file.is_open());
+    file.write((char *)(&header), sizeof(header));
+    file.write((char *)(image_data.pixels), output_pixel_size);
+    file.close();
 }
 
 std::unique_ptr<ImageData> Bitmap::get_image_data()
