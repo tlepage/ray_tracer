@@ -21,14 +21,28 @@ TEST(HadamardProductTest, ValidateVectorResult)
     EXPECT_FLOAT_EQ(expected_result.z, actual_result.z);
 }
 
-TEST(InnerProductTest, ValidateNumericalResult)
+TEST(InnerProductTest, ValidateAcuteVectorsProducePositiveResult)
 {
     Vector::Vector3 a {1.0f, 2.0f, 3.0f};
     Vector::Vector3 b {2.0f, 3.0f, 4.0f};
 
-    float result = 20.0f;
+    EXPECT_FLOAT_EQ(20.0f, Math::inner_product(a, b));
+}
 
-    EXPECT_FLOAT_EQ(result, Math::inner_product(a, b));
+TEST(InnerProductTest, ValidateObtuseVectorsProduceNegativeResult)
+{
+    Vector::Vector3 a {-1.0f, -2.0f, -3.0f};
+    Vector::Vector3 b {1.0f, 2.0f, 3.0f};
+
+    EXPECT_FLOAT_EQ(-14.0f, Math::inner_product(a, b));
+}
+
+TEST(InnerProductTest, ValidateOrthogonalVectorsProduceZeroResult)
+{
+    Vector::Vector3 a {2.0f, 4.0f, 1.0f};
+    Vector::Vector3 b {2.0f, 1.0f, -8.0f};
+    
+    EXPECT_FLOAT_EQ(0.0f, Math::inner_product(a, b));
 }
 
 TEST(CrossProductTest, ValidateVectorResult)

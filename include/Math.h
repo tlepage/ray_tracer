@@ -10,11 +10,6 @@ constexpr float SLOPE_HORIZONTAL = 12.92f;
 
 namespace Math
 {
-    inline auto square_root(float a)
-    {
-        return sqrt(a);
-    }
-
     struct RandomSeries
     {
         uint32_t state;
@@ -77,27 +72,40 @@ namespace Math
         return (-1.0f + 2.0f * random_unilateral(series));
     }
 
+    inline auto square_root(float a)
+    {
+        return sqrt(a);
+    }
+
+    // https://en.wikipedia.org/wiki/Hadamard_product_(matrices)
+    // The Hadamard Product is an operation that takes two matrices of the same
+    // dimension and produces a resultant matrix of the same dimension; not the same
+    // as a matrix product operation
     inline auto hadamard_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
-        Vector::Vector3 result = {a.x * b.x, a.y * b.y, a.z * b.z};
-        return result;
+        return Vector::Vector3 {a.x * b.x, a.y * b.y, a.z * b.z};
     }
 
+    // https://en.wikipedia.org/wiki/Dot_product
+    // scalar function of two vectors equal to the product of their magnitudes
+    // and the cosine of the angle between them, also called dot product
+    // can be used to determine if vectors are obtuse(negative values),
+    // acute(positive values) or are orthogonal(0.0f) based on the result of the product
     inline auto inner_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
-        float result = a.x * b.x + a.y * b.y + a.z * b.z;
-        return result;
+        return (a.x * b.x + a.y * b.y + a.z * b.z);
     }
 
+    // https://en.wikipedia.org/wiki/Cross_product
+    // Vector operation where the resultant vector is perpendicular to both input vectors
     inline auto cross_product(const Vector::Vector3 &a, const Vector::Vector3 &b)
     {
-        Vector::Vector3 result = {};
-
-        result.x = a.y * b.z - a.z * b.y;
-        result.y = a.z * b.x - a.x * b.z;
-        result.z = a.x * b.y - a.y * b.x;
-
-        return result;
+        return Vector::Vector3
+        {
+             a.y * b.z - a.z * b.y,
+             a.z * b.x - a.x * b.z,
+             a.x * b.y - a.y * b.x
+        };
     }
 
     // commonly used replacement for inverse square root due to performance
@@ -140,8 +148,7 @@ namespace Math
     // "lerp" in computer graphics
     inline auto lerp(const Vector::Vector3 &a, const float t, const Vector::Vector3 &b)
     {
-        Vector::Vector3 result = (1.0f - t) * a + t * b;
-        return result;
+        return Vector::Vector3 {(1.0f - t) * a + t * b};
     }
 
     // http://entropymine.com/imageworsener/srgbformula/
