@@ -50,4 +50,3 @@ public:
     void write_image(const std::string &file_name);
     const ImageData *get_image_data() const;
 };
-

@@ -51,8 +51,42 @@ namespace Vector
 
             return *this;
         }
+
+        Vector3 operator*(const float a) const
+        {
+            Vector3 result = {};
+
+            result.x = a * x;
+            result.y = a * y;
+            result.z = a * z;
+
+            return result;
+        }
+
+        Vector3 operator-(const Vector3 &a) const
+        {
+            Vector3 result = {};
+
+            result.x = x - a.x;
+            result.y = y - a.y;
+            result.z = z - a.z;
+
+            return result;
+        }
+
+        Vector3 operator+(const Vector3 &a) const
+        {
+            Vector3 result = {};
+
+            result.x = x + a.x;
+            result.y = y + a.y;
+            result.z = z + a.z;
+
+            return result;
+        }
     };
 
+    // for reflexivity purposes
     inline Vector3 operator*(const float &a, const Vector3 &b)
     {
         Vector3 result = {};
@@ -60,34 +94,6 @@ namespace Vector
         result.x = a * b.x;
         result.y = a * b.y;
         result.z = a * b.z;
-
-        return result;
-    }
-
-    inline Vector3 operator*(const Vector3 &b, const float &a)
-    {
-        Vector3 result = a * b;
-        return result;
-    }
-
-    inline Vector3 operator+(const Vector3 &a, const Vector3 &b)
-    {
-        Vector3 result = {};
-
-        result.x = a.x + b.x;
-        result.y = a.y + b.y;
-        result.z = a.z + b.z;
-
-        return result;
-    }
-
-    inline Vector3 operator-(const Vector3 &a, const Vector3 &b)
-    {
-        Vector3 result = {};
-
-        result.x = a.x - b.x;
-        result.y = a.y - b.y;
-        result.z = a.z - b.z;
 
         return result;
     }

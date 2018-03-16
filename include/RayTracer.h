@@ -113,4 +113,3 @@ struct TileQueue
     volatile uint64_t bounces_computed;
     volatile uint64_t tiles_done;
 };
-
