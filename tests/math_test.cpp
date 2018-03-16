@@ -41,7 +41,7 @@ TEST(InnerProductTest, ValidateOrthogonalVectorsProduceZeroResult)
 {
     Vector::Vector3 a {2.0f, 4.0f, 1.0f};
     Vector::Vector3 b {2.0f, 1.0f, -8.0f};
-    
+
     EXPECT_FLOAT_EQ(0.0f, Math::inner_product(a, b));
 }
 
@@ -107,7 +107,7 @@ TEST(PackBGRATest, ValidateNumericalResult)
 {
     Vector::Vector3 a = {1.0f, 2.0f, 3.0f};
     EXPECT_EQ(4278256131, Math::pack_BGRA(a));
-
+    //                  A        R        G        B
     // 4278256131 => 11111111 00000001 00000010 00000011 in binary
     // 255 << 24 (11111111) alpha
     // 1 << 16   (00000001) red

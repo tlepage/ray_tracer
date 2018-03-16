@@ -216,7 +216,7 @@ bool render_tile(TileQueue *queue)
 
 void *worker_thread(void *queue)
 {
-    auto *tile_queue = (TileQueue *)queue;
+    auto *tile_queue = static_cast<TileQueue *>(queue);
     while(render_tile(tile_queue)) {};
 
     return nullptr;
