@@ -15,11 +15,6 @@ namespace Math
         return sqrt(a);
     }
 
-    inline auto round_float_to_uint32(float f)
-    {
-        return (uint32_t)lround(f);
-    }
-
     struct RandomSeries
     {
         uint32_t state;
@@ -124,7 +119,8 @@ namespace Math
     }
 
     // automatic epsilon check
-    // get length, if length is greater than epsilon, otherwise return zero
+    // get length, if length is greater than epsilon, normalize the vector;
+    // otherwise return zero
     inline auto normalize_or_zero(const Vector::Vector3 &a)
     {
         Vector::Vector3 result = {};
@@ -138,13 +134,19 @@ namespace Math
         return result;
     }
 
-    // linear interpolate
+    // https://en.wikipedia.org/wiki/Linear_interpolation
+    // This function is used to find a value that is some percentage between two
+    // known values.  In this case, using a linear polynomial.  This is often called
+    // "lerp" in computer graphics
     inline auto lerp(const Vector::Vector3 &a, const float t, const Vector::Vector3 &b)
     {
         Vector::Vector3 result = (1.0f - t) * a + t * b;
         return result;
     }
 
+    // http://entropymine.com/imageworsener/srgbformula/
+    // https://en.wikipedia.org/wiki/SRGB
+    // This function converts linear space color values to sRGB color space values
     inline auto linear_to_sRGB(float l)
     {
         l = std::clamp(l, 0.0f, 1.0f);
@@ -158,12 +160,15 @@ namespace Math
         return s;
     }
 
+    // takes a vector representation of the color (unpacked) and packs it
+    // into a binary format for each pixel
+    // packs alpha in the highest bits, then red, green, and blue
     inline auto pack_BGRA(Vector::Vector3 &unpacked)
     {
         uint32_t result = ((255 << 24) |
-                           (round_float_to_uint32(unpacked.x) << 16) |
-                           (round_float_to_uint32(unpacked.y) << 8) |
-                           (round_float_to_uint32(unpacked.z) << 0));
+                           (static_cast<uint32_t>(lround(unpacked.x)) << 16) |
+                           (static_cast<uint32_t>(lround(unpacked.y)) << 8)  |
+                           (static_cast<uint32_t>(lround(unpacked.z)) << 0));
 
         return result;
     }
