@@ -1,8 +1,10 @@
 #pragma once
 namespace Vector
 {
-    struct Vector3
+    // data class, not a behavior class, hence the public access to the members
+    class Vector3
     {
+    public:
         float x, y, z;
 
         Vector3 &operator*=(const float &a)
