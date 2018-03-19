@@ -26,8 +26,8 @@ void Bitmap::write_image(const std::string &file_name)
 
     std::ofstream file (file_name, std::ios::out | std::ios::binary | std::ios::trunc);
     assert(file.is_open());
-    file.write((char *)(&header), sizeof(header));
-    file.write((char *)(image_data.pixels), output_pixel_size);
+    file.write(reinterpret_cast<char *>(&header), sizeof(header));
+    file.write(reinterpret_cast<char *>(image_data.pixels), output_pixel_size);
     file.close();
 }
 

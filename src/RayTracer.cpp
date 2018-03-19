@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "../include/Bitmap.h"
 #include "../include/RayTracer.h"
 
@@ -214,22 +215,12 @@ bool render_tile(TileQueue *queue)
     return true;
 }
 
-void *worker_thread(void *queue)
+void *process_tile_queue(void *queue)
 {
     auto *tile_queue = static_cast<TileQueue *>(queue);
     while(render_tile(tile_queue)) {};
 
     return nullptr;
-}
-
-void create_thread(void *parameter)
-{
-    pthread_attr_t attr;
-    pthread_t tid;
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&tid, &attr, worker_thread, parameter);
-    pthread_attr_destroy(&attr);
 }
 
 int main(int argc, char **argv)
@@ -329,7 +320,8 @@ int main(int argc, char **argv)
     // core zero is occupied by main thread
     for (uint32_t core_index = 1; core_index < CORE_COUNT; ++core_index)
     {
-        create_thread(&queue);
+        std::thread thread(process_tile_queue, &queue);
+        thread.detach();
     }
 #endif
 
