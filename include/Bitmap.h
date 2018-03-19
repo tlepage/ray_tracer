@@ -9,6 +9,13 @@ constexpr uint32_t HEADER_SIZE_EXCLUDE_BYTES = 14;
 constexpr uint32_t BITMAP_PLANES = 1;
 constexpr uint32_t BITS_PER_PIXEL = 32;
 
+struct ImageData
+{
+    uint32_t width;
+    uint32_t height;
+    uint32_t *pixels;
+};
+
 #pragma pack(push, 1)
 struct BitmapHeader
 {
@@ -28,23 +35,34 @@ struct BitmapHeader
     uint32_t vertical_resolution;
     uint32_t colors_used;
     uint32_t colors_important;
+
+    void compose(ImageData image_data, uint32_t output_pixel_size)
+    {
+        file_type = BITMAP_ID_FIELD;
+        file_size = sizeof(BitmapHeader) + output_pixel_size;
+        bitmap_offset = sizeof(BitmapHeader);
+        size = sizeof(BitmapHeader) - HEADER_SIZE_EXCLUDE_BYTES;
+        width = image_data.width;
+        height = image_data.height;
+        planes = BITMAP_PLANES;
+        bits_per_pixel = BITS_PER_PIXEL;
+        compression = 0;
+        size_of_bitmap = output_pixel_size;
+        horizontal_resolution = 0;
+        vertical_resolution = 0;
+        colors_used = 0;
+        colors_important = 0;
+    };
 };
 #pragma pack(pop)
 
-struct ImageData
+class Bitmap
 {
-    uint32_t width;
-    uint32_t height;
-    uint32_t *pixels;
-};
-
-class Bitmap {
 private:
     ImageData image_data;
     uint32_t output_pixel_size;
 
-    inline uint32_t get_total_pixel_size() const;
-    const BitmapHeader compose_header();
+    const uint32_t calculate_total_pixel_size() const;
 public:
     Bitmap(uint32_t width, uint32_t height);
     void write_image(const std::string &file_name);
