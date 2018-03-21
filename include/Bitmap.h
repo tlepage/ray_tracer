@@ -13,7 +13,7 @@ struct ImageData
 {
     uint32_t width;
     uint32_t height;
-    uint32_t *pixels;
+    std::shared_ptr<uint32_t> pixels;
 };
 
 #pragma pack(push, 1)

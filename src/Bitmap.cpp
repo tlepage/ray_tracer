@@ -12,7 +12,8 @@ Bitmap::Bitmap(uint32_t width, uint32_t height)
     image_data.height = height;
 
     output_pixel_size = calculate_total_pixel_size();
-    image_data.pixels = (uint32_t *)malloc(output_pixel_size);
+    image_data.pixels = std::shared_ptr<uint32_t>(new uint32_t[output_pixel_size],
+                                                  std::default_delete<uint32_t[]>());
 }
 
 const inline uint32_t Bitmap::calculate_total_pixel_size() const
@@ -28,7 +29,7 @@ void Bitmap::write_image(const std::string &file_name)
     std::ofstream file (file_name, std::ios::out | std::ios::binary | std::ios::trunc);
     assert(file.is_open());
     file.write(reinterpret_cast<char *>(&header), sizeof(header));
-    file.write(reinterpret_cast<char *>(image_data.pixels), output_pixel_size);
+    file.write(reinterpret_cast<char *>(image_data.pixels.get()), output_pixel_size);
     file.close();
 }
 

@@ -2,7 +2,6 @@
 #include <thread>
 #include "../include/Bitmap.h"
 #include "../include/RayTracer.h"
-
 #include "gtest/gtest.h"
 
 void cast_rays(CastState *state)
@@ -130,7 +129,7 @@ void cast_rays(CastState *state)
 
 auto get_pixel_pointer(ImageData image_data, uint32_t x, uint32_t y)
 {
-    uint32_t *result = image_data.pixels + x + y * image_data.width;
+    uint32_t *result = image_data.pixels.get() + x + y * image_data.width;
     return result;
 }
 

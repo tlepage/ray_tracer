@@ -15,6 +15,12 @@ namespace Math
         uint32_t state;
     };
 
+    // The newer Mersenne Twister algorithm in the C++ LCG library can provide results
+    // that are close to xor_shift; however, those results may vary depending on which
+    // compiler you are using.  In some instances (clang), those results can be *slower* than
+    // std::rand().  For this project, I chose to use xor_shift since it is very fast
+    // and accomplishes what I need for randomness
+    // https://medium.com/@odarbelaeze/how-competitive-are-c-standard-random-number-generators-f3de98d973f0
     inline auto xor_shift(RandomSeries *series)
     {
         // xorshift https://en.wikipedia.org/wiki/Xorshift
