@@ -7,7 +7,7 @@
 
 Bitmap::Bitmap(uint32_t width, uint32_t height)
 {
-    ImageData image_data = {};
+    image_data = {};
     image_data.width = width;
     image_data.height = height;
 
