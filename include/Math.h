@@ -3,13 +3,13 @@
 #include <algorithm>
 #include "Vector.h"
 
-constexpr uint32_t LOMONT_CONSTANT = 0x5f375a86;
-constexpr float SQUARED_EPSILON = 0.00000001f;
-constexpr float LINEAR_CUTOFF = 0.0031308f;
-constexpr float SLOPE_HORIZONTAL = 12.92f;
-
 namespace Math
 {
+    constexpr uint32_t LOMONT_CONSTANT = 0x5f375a86;
+    constexpr float SQUARED_EPSILON = 0.00000001f;
+    constexpr float LINEAR_CUTOFF = 0.0031308f;
+    constexpr float SLOPE_HORIZONTAL = 12.92f;
+
     struct RandomSeries
     {
         uint32_t state;
@@ -38,7 +38,7 @@ namespace Math
         // performance = 0.000009ms/bounce
 
         // at least 4 calls deep with no actual randomness, no inlining whatsoever
-        //// rand() used thread local storage, hence all the calls
+        // rand() used thread local storage, hence all the calls
         // rand.cpp
         // sub     rsp, 38h
         // call    __acrt_getptd()
